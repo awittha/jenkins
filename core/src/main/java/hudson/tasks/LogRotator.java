@@ -26,6 +26,7 @@ package hudson.tasks;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.FINER;
+import static java.util.logging.Level.INFO;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -104,10 +105,11 @@ public class LogRotator extends BuildDiscarder {
      */
     private final Integer artifactNumToKeep;
 
-    @DataBoundConstructor
     public LogRotator (String daysToKeepStr, String numToKeepStr, String artifactDaysToKeepStr, String artifactNumToKeepStr) {
         this (parse(daysToKeepStr),parse(numToKeepStr),
               parse(artifactDaysToKeepStr),parse(artifactNumToKeepStr));
+        
+        LOGGER.log( INFO, "Creating LogRotator from String args: " + daysToKeepStr +", " + numToKeepStr +", " + artifactDaysToKeepStr + ", " + artifactNumToKeepStr );
     }
 
     public static int parse(String p) {
@@ -128,7 +130,9 @@ public class LogRotator extends BuildDiscarder {
         this(daysToKeep, numToKeep, -1, -1);
     }
 
+    @DataBoundConstructor
     public LogRotator(int daysToKeep, int numToKeep, int artifactDaysToKeep, int artifactNumToKeep) {
+    	LOGGER.log( INFO, "Creating LogRotator from int args: " + daysToKeep +", " + numToKeep +", " + artifactDaysToKeep + ", " + artifactNumToKeep );
         this.daysToKeep = daysToKeep;
         this.numToKeep = numToKeep;
         this.artifactDaysToKeep = artifactDaysToKeep;
