@@ -96,11 +96,11 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to not rotate its logs." );
 										break;
 									case CUSTOM:
-										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to use it to rotate its logs." );
+										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to use that to rotate its logs." );
 										discarder.perform( job );
 										break;
 									case GLOBAL:
-										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to ignore it and use a globally-defined LogRotator." );
+										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to ignore that and use a globally-defined LogRotator." );
 										applyGlobalLogRotators( job, config.getGlobalLogRotators() );
 										break;
 									default:
