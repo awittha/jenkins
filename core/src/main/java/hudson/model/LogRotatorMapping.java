@@ -35,6 +35,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 import hudson.Extension;
+import hudson.Util;
 import hudson.tasks.LogRotator;
 import hudson.util.FormValidation;
 
@@ -88,6 +89,11 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 		}
 		
 		public FormValidation doCheckJobNameRegex(@QueryParameter String jobNameRegex) {
+			
+			if( null == Util.fixEmptyAndTrim(jobNameRegex) ) {
+				return FormValidation.error( "Please provide a regular expression." );
+			}
+			
 			try {
 				Pattern p = Pattern.compile( jobNameRegex );
 				return FormValidation.ok();
