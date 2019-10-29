@@ -34,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import hudson.Extension;
+import hudson.tasks.LogRotator;
 import jenkins.model.GlobalConfiguration;
 
 /**
@@ -47,19 +48,41 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
 	private static final Logger LOGGER = Logger.getLogger( LogRotatorConfiguration.class.getName() );
 	
 	public static final boolean DEFAULT_ENABLE_ROTATION = true;
+	
+	/**
+	 * Whether or not {@link LogRotator} rules should be periodically applied to jobs.
+	 */
 	protected boolean enableRotation = DEFAULT_ENABLE_ROTATION;
 	
 	public static final int DEFAULT_UPDATE_INTERVAL_HOURS = 24;
+	
+	/**
+	 * The number of hours to wait between applying {@link LogRotator} rules.
+	 */
 	protected int updateIntervalHours = DEFAULT_UPDATE_INTERVAL_HOURS;
 	
+	/**
+	 * The last time that log rotation rules were applied.
+	 */
 	protected long lastRotated;
 	
 	public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITH_ROTATORS = LogRotationPolicy.CUSTOM;
+	
+	/**
+	 * What to do for jobs that define their own custom {@link LogRotator}.
+	 */
 	protected LogRotationPolicy policyForJobsWithCustomLogRotator;
 	
 	public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITHOUT_ROTATORS = LogRotationPolicy.NONE;
+	
+	/**
+	 * What to do for jobs that do not define their own custom {@link LogRotator}
+	 */
 	protected LogRotationPolicy policyForJobsWithoutCustomLogRotator;
 	
+	/**
+	 * Global log rotation policies
+	 */
 	protected List<LogRotatorMapping> globalLogRotators = new ArrayList<LogRotatorMapping>();
 	
 	@DataBoundConstructor
@@ -163,9 +186,23 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
 	 * @since 2.203
 	 */
 	public static enum LogRotationPolicy {
-		NONE,   /* do nothing */
-		CUSTOM, /* use the job's own LogRotator */
-		GLOBAL  /* apply a globally-defined LogRotator */
+		/**
+		 * Do not periodically rotate build logs.
+		 */
+		NONE,
+		
+		/**
+		 * Use the job's own custom {@link LogRotator}.
+		 */
+		CUSTOM,
+		
+		/**
+		 * Use an appropriate globally-defined {@link LogRotator}.
+		 * Or none, if there are no appropriate global definitions.
+		 * 
+		 * @see LogRotatorMapping
+		 */
+		GLOBAL
 	}
 
 }
