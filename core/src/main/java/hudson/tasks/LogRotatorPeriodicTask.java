@@ -25,6 +25,7 @@
 package hudson.tasks;
 
 import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINER;
 import static java.util.logging.Level.SEVERE;
 import static java.util.logging.Level.WARNING;
 
@@ -56,7 +57,7 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 	private static final Logger LOGGER = Logger.getLogger( LogRotatorPeriodicTask.class.getName() );
 	
 	public LogRotatorPeriodicTask() {
-		super("Log Rotation");
+		super("Checking if LogRotator rules should be applied");
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 				
 				if( hours_since_last_update >= config.getUpdateIntervalHours() ) {
 					// actually do it
-					LOGGER.log( getNormalLoggingLevel(), "Starting scheduled log rotation." );
+					LOGGER.log( getNormalLoggingLevel(), "Starting to apply LogRotator rules..." );
 					
 					Jenkins jenkins = Jenkins.getInstanceOrNull();
 					
@@ -82,53 +83,52 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 					
 					for( Item item : jenkins.getAllItems() ) {
 						
-						LOGGER.log( FINE, "Applying rotation rules to top-level item [" + item + "]" );
-						
 						for( Job<?,?> job : item.getAllJobs() ) {
-							
-							LOGGER.log( FINE, "\tApplying rotation rules to job item [" + job + "]" );
-							
+														
 							BuildDiscarder discarder = job.getBuildDiscarder();
 							
 							try {
 							
 								if( discarder instanceof LogRotator ) {
-									// the job has defined its own LogRotator
-									LOGGER.log( FINE, "\t\t[" + job.getName() + "]'s LogRotator: [" + discarder + "]" );
-									
+									// the job has defined its own LogRotator									
 									switch( config.getPolicyForJobsWithCustomLogRotator() ) {
 									case NONE:
+										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to not rotate its logs." );
 										break;
 									case CUSTOM:
+										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to use it to rotate its logs." );
 										discarder.perform( job );
 										break;
 									case GLOBAL:
+										LOGGER.log( FINER, "Job [" + job.getName() + "] defined its own LogRotator. Policy is to ignore it and use a globally-defined LogRotator." );
 										applyGlobalLogRotators( job, config.getGlobalLogRotators() );
 										break;
 									default:
 										LOGGER.log(
 											SEVERE,
-											"\t\tUnsupported policy for job with custom LogRotator: [" +
-											config.getPolicyForJobsWithCustomLogRotator() +
-											"]" );
+											"Job [" +
+											job.getName() +
+											"] defined its own LogRotator. Unsupported policy found: [" +
+											config.getPolicyForJobsWithCustomLogRotator() + "]" );
 										break;
 									}
 								} else {
-									// the job has NOT defined its own LogRotator
-									LOGGER.log( FINE, "\t\t[" + job.getName() + "] did not define a LogRotator" );
-									
+									// the job has NOT defined its own LogRotator									
 									switch( config.getPolicyForJobsWithoutCustomLogRotator() ) {
 									case NONE:
+										LOGGER.log( FINER, "Job [" + job.getName() + "] did not define a LogRotator. Policy is to not rotate its logs." );
 										break;
 									case GLOBAL:
+										LOGGER.log( FINER, "Job [" + job.getName() + "] did not define a LogRotator. Policy is to use a globally-defined LogRotator." );
 										applyGlobalLogRotators( job, config.getGlobalLogRotators() );
 										break;
 									default:
 										LOGGER.log(
 											SEVERE,
-											"\t\tUnsupported policy for job without custom LogRotator: [" +
-											config.getPolicyForJobsWithoutCustomLogRotator() +
-											"]" );
+											"Job [" +
+											job.getName() +
+											"] did not define a LogRotator. Unsupported policy found: [" +
+											config.getPolicyForJobsWithoutCustomLogRotator() + "]" );
 										break;
 									}
 								}
@@ -174,22 +174,16 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 			
 			if( job.getFullName().matches( mapping.getJobNameRegex() ) ) {
 				
-				LOGGER.log(
-					FINE,
-					"\t\t\tSelected LogRotator ["
-					+ mapping.getLogRotator() +
-					"] for job [" +
-					job.getFullDisplayName() +
-					"] based on regex [" +
-					mapping.getJobNameRegex() +
-					"]" );
-				
 				mapping.getLogRotator().perform( job );
 				
 				return;
 			}
-			
 		}
 		
+		LOGGER.log(
+			FINE,
+			"Did not find any global LogRotator that would apply to Job [" +
+			job.getFullName() +
+			"]. Its logs will not be rotated." );
 	}
 }
