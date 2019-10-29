@@ -45,12 +45,13 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 	
 	private static final Logger LOGGER = Logger.getLogger( LogRotatorMapping.class.getName() );
 	
+	/**
+	 * A regular expression to apply to {@link Job#getFullName()}
+	 */
 	protected String jobNameRegex;
 	
 	protected LogRotator logRotator;
-	
-	protected int numToKeep = 69;
-	
+		
 	@DataBoundConstructor
 	public LogRotatorMapping(String jobNameRegex, LogRotator logRotator) {
 		LOGGER.log( INFO, "Setting a LogRotator by constructor w/ class: " + logRotator );
@@ -82,12 +83,4 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 			return "Log Rotator Mapping";
 		}
 	}
-	
-	public int getNumToKeep() { return numToKeep; }
-	
-	@DataBoundSetter
-	public void setNumToKeep(int numToKeep) {
-		this.numToKeep = numToKeep;
-	}
-	
 }

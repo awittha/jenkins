@@ -22,6 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
+<!--
+Associates a LogRotator with a regular expression.
+In context, this can be used to know if a given job's logs should be rotated.
+-->
 <?jelly escape-by-default='true'?>
 <j:jelly
 	xmlns:j="jelly:core"

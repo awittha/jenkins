@@ -24,14 +24,24 @@
  */
 package hudson.tasks;
 
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import hudson.Extension;
 import hudson.model.AsyncPeriodicWork;
+import hudson.model.Item;
+import hudson.model.Job;
 import hudson.model.LogRotatorConfiguration;
+import hudson.model.LogRotatorMapping;
 import hudson.model.TaskListener;
+import jenkins.model.BuildDiscarder;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 
 /**
  * Periodic task that checks if it's time to rotate build logs.
@@ -56,7 +66,7 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 		
 		if( config != null ) {
 			// there is config
-			if( config.getUpdateIntervalHours() > 0 ) {
+			if( config.isEnableRotation() && config.getUpdateIntervalHours() > 0 ) {
 				// and we should update periodically
 				
 				long millis_since_last_update = System.currentTimeMillis() - config.getLastRotated();
@@ -65,11 +75,82 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 				if( hours_since_last_update >= config.getUpdateIntervalHours() ) {
 					// actually do it
 					LOGGER.log( getNormalLoggingLevel(), "Starting scheduled log rotation." );
+					
+					Jenkins jenkins = Jenkins.getInstanceOrNull();
+					
+					if( null == jenkins ) { return; }
+					
+					for( Item item : jenkins.getAllItems() ) {
+						
+						LOGGER.log( FINE, "Applying rotation rules to top-level item [" + item + "]" );
+						
+						for( Job<?,?> job : item.getAllJobs() ) {
+							
+							LOGGER.log( FINE, "\tApplying rotation rules to job item [" + job + "]" );
+							
+							BuildDiscarder discarder = job.getBuildDiscarder();
+							
+							try {
+							
+								if( discarder instanceof LogRotator ) {
+									// the job has defined its own LogRotator
+									LOGGER.log( FINE, "\t\t[" + job.getName() + "]'s LogRotator: [" + discarder + "]" );
+									
+									switch( config.getPolicyForJobsWithCustomLogRotator() ) {
+									case NONE:
+										break;
+									case CUSTOM:
+										discarder.perform( job );
+										break;
+									case GLOBAL:
+										applyGlobalLogRotators( job, config.getGlobalLogRotators() );
+										break;
+									default:
+										LOGGER.log(
+											SEVERE,
+											"\t\tUnsupported policy for job with custom LogRotator: [" +
+											config.getPolicyForJobsWithCustomLogRotator() +
+											"]" );
+										break;
+									}
+								} else {
+									// the job has NOT defined its own LogRotator
+									LOGGER.log( FINE, "\t\t[" + job.getName() + "] did not define a LogRotator" );
+									
+									switch( config.getPolicyForJobsWithoutCustomLogRotator() ) {
+									case NONE:
+										break;
+									case GLOBAL:
+										applyGlobalLogRotators( job, config.getGlobalLogRotators() );
+										break;
+									default:
+										LOGGER.log(
+											SEVERE,
+											"\t\tUnsupported policy for job without custom LogRotator: [" +
+											config.getPolicyForJobsWithoutCustomLogRotator() +
+											"]" );
+										break;
+									}
+								}
+							} catch( InterruptedException ie ) {
+								// re-throw InterruptedException always, so we're interruptable.
+								throw ie;
+							} catch( Exception e ) {
+								// any other exception, chomp it and try to rotate the rest of the logs.
+								LOGGER.log(
+									WARNING,
+									"Unexpected exception encountered while rotating build logs. Skipping this job & trying the next.",
+									e );
+							}
+						}
+					}
+					
+					config.setLastRotated( System.currentTimeMillis() );
 				}
 			}
 		}
-		
 	}
+	
 	/*
 	 * Non-javadoc: will run every minute, but only to check if sufficient time has passed to execute.
 	 * Since AsyncPeriodicWork's timer is non-configurable, we need to run every minute, and check
@@ -77,5 +158,38 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 	 */
 	@Override
 	public long getRecurrencePeriod() { return MIN; }
-
+	
+	/**
+	 * Apply the global log rotation policies defined in {@link LogRotatorConfiguration} to a job.
+	 * 
+	 * @param job      A job whose logs should be rotated
+	 * @param rotators Log rotation policies.
+	 * 
+	 * @throws InterruptedException see {@link LogRotator#perform(Job)}
+	 * @throws IOException see {@link LogRotator#perform(Job)}
+	 */
+	protected void applyGlobalLogRotators( Job<?,?> job, List<LogRotatorMapping> rotators ) throws IOException, InterruptedException {
+		
+		for( LogRotatorMapping mapping : rotators ) {
+			
+			if( job.getFullName().matches( mapping.getJobNameRegex() ) ) {
+				
+				LOGGER.log(
+					FINE,
+					"\t\t\tSelected LogRotator ["
+					+ mapping.getLogRotator() +
+					"] for job [" +
+					job.getFullDisplayName() +
+					"] based on regex [" +
+					mapping.getJobNameRegex() +
+					"]" );
+				
+				mapping.getLogRotator().perform( job );
+				
+				return;
+			}
+			
+		}
+		
+	}
 }
