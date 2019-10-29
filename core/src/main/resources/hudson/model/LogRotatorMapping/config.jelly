@@ -34,6 +34,6 @@ THE SOFTWARE.
 		<f:textbox/>
 	</f:entry>
 	<f:rowSet name="logRotator">
-		<st:include page="config.jelly" it="${it.logRotator}" class="hudson.tasks.LogRotator"/>
+		<st:include page="config.jelly" it="${descriptor.logRotator}" class="hudson.tasks.LogRotator"/>
 	</f:rowSet>
 </j:jelly>
