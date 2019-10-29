@@ -33,5 +33,7 @@ THE SOFTWARE.
 		description="A regular expression to apply to job names">
 		<f:textbox/>
 	</f:entry>
-	<st:include page="config.jelly" it="${it.logRotator}" class="hudson.tasks.LogRotator"/>
+	<f:property field="logRotator">
+		<st:include page="config.jelly" class="hudson.tasks.LogRotator"/>
+	</f:property>
 </j:jelly>
