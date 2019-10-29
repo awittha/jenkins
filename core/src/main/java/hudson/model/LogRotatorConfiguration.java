@@ -32,9 +32,11 @@ import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 
 import hudson.Extension;
 import hudson.tasks.LogRotator;
+import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 
 /**
@@ -134,40 +136,21 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
 
 	@DataBoundSetter
 	public void setPolicyForJobsWithCustomLogRotator(LogRotationPolicy policyForJobsWithCustomLogRotator) {
-		LOGGER.log( INFO, "Got rotation policy for jobs w/ custom log rotator as ENUM: " + policyForJobsWithCustomLogRotator );
 		this.policyForJobsWithCustomLogRotator = policyForJobsWithCustomLogRotator;
 		
 		save();
 	}
 	
-	@DataBoundSetter
-	public void setPolicyForJobsWithCustomLogRotator(String policyForJobsWithCustomLogRotator) {
-		LOGGER.log( INFO, "Got rotation policy for jobs w/ custom log rotator as STRING: " + policyForJobsWithCustomLogRotator );
-		this.policyForJobsWithCustomLogRotator = LogRotationPolicy.valueOf( policyForJobsWithCustomLogRotator );
-		
-		save();
-	}
-
 	public LogRotationPolicy getPolicyForJobsWithoutCustomLogRotator() {
 		return policyForJobsWithoutCustomLogRotator;
 	}
 
 	@DataBoundSetter
 	public void setPolicyForJobsWithoutCustomLogRotator(LogRotationPolicy policyForJobsWithoutCustomLogRotator) {
-		LOGGER.log( INFO, "Got rotation policy for jobs w/out custom log rotator as ENUM: " + policyForJobsWithoutCustomLogRotator );
 		this.policyForJobsWithoutCustomLogRotator = policyForJobsWithoutCustomLogRotator;
 		
 		save();
 	}
-	
-	@DataBoundSetter
-	public void setPolicyForJobsWithoutCustomLogRotator(String policyForJobsWithoutCustomLogRotator) {
-		LOGGER.log( INFO, "Got rotation policy for jobs w/out custom log rotator as STRING: " + policyForJobsWithoutCustomLogRotator );
-		this.policyForJobsWithoutCustomLogRotator = LogRotationPolicy.valueOf( policyForJobsWithoutCustomLogRotator );
-		
-		save();
-	}
-
 	public List<LogRotatorMapping> getGlobalLogRotators() {
 		return globalLogRotators;
 	}
@@ -177,6 +160,20 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
 		this.globalLogRotators = globalLogRotators;
 		
 		save();
+	}
+	
+	public FormValidation doCheckUpdateIntervalHours(@QueryParameter String updateIntervalHours) {
+		try {
+			int interval = Integer.parseInt( updateIntervalHours );
+			
+			if( interval <=0 ) {
+				return FormValidation.error( "Please enter a positive integer." );
+			}
+		} catch( NumberFormatException nfe ) {
+			return FormValidation.error( "Please enter a positive integer." );
+		}
+		
+		return FormValidation.ok();
 	}
 	
 	/**

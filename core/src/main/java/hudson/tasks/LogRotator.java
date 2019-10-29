@@ -109,8 +109,6 @@ public class LogRotator extends BuildDiscarder {
     public LogRotator (String daysToKeepStr, String numToKeepStr, String artifactDaysToKeepStr, String artifactNumToKeepStr) {
         this (parse(daysToKeepStr),parse(numToKeepStr),
               parse(artifactDaysToKeepStr),parse(artifactNumToKeepStr));
-        
-        LOGGER.log( INFO, "Creating LogRotator from String args: " + daysToKeepStr +", " + numToKeepStr +", " + artifactDaysToKeepStr + ", " + artifactNumToKeepStr );
     }
 
     public static int parse(String p) {
@@ -133,7 +131,6 @@ public class LogRotator extends BuildDiscarder {
 
     @DataBoundConstructor
     public LogRotator(int daysToKeep, int numToKeep, int artifactDaysToKeep, int artifactNumToKeep) {
-    	LOGGER.log( INFO, "Creating LogRotator from int args: " + daysToKeep +", " + numToKeep +", " + artifactDaysToKeep + ", " + artifactNumToKeep );
         this.daysToKeep = daysToKeep;
         this.numToKeep = numToKeep;
         this.artifactDaysToKeep = artifactDaysToKeep;

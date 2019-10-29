@@ -27,12 +27,16 @@ package hudson.model;
 import static java.util.logging.Level.INFO;
 
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 
 import hudson.Extension;
 import hudson.tasks.LogRotator;
+import hudson.util.FormValidation;
 
 /**
  * Maps a regular expression to a {@link LogRotator} definition.
@@ -81,6 +85,15 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 		@Override
 		public String getDisplayName() {
 			return "Log Rotator Mapping";
+		}
+		
+		public FormValidation doCheckJobNameRegex(@QueryParameter String jobNameRegex) {
+			try {
+				Pattern p = Pattern.compile( jobNameRegex );
+				return FormValidation.ok();
+			} catch( PatternSyntaxException pse ) {
+				return FormValidation.error(pse, "Please enter a valid regular expression." );
+			}
 		}
 	}
 }
