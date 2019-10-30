@@ -24,8 +24,6 @@
  */
 package hudson.model;
 
-import static java.util.logging.Level.INFO;
-
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
