@@ -45,56 +45,56 @@ import hudson.util.FormValidation;
  *
  */
 public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping> {
-	
-	private static final Logger LOGGER = Logger.getLogger( LogRotatorMapping.class.getName() );
-	
-	/**
-	 * A regular expression to apply to {@link Job#getFullName()}
-	 */
-	protected String jobNameRegex;
-	
-	protected LogRotator logRotator;
-		
-	@DataBoundConstructor
-	public LogRotatorMapping(String jobNameRegex, LogRotator logRotator) {
-		this.jobNameRegex = jobNameRegex;
-		this.logRotator = logRotator;
-	}
-	
-	@DataBoundSetter
-	public void setJobNameRegex(String jobNameRegex) {
-		this.jobNameRegex = jobNameRegex;
-	}
-	
-	public String getJobNameRegex() { return jobNameRegex; }
-	
-	@DataBoundSetter
-	public void setLogRotator(LogRotator logRotator) {		
-		this.logRotator = logRotator;
-	}
-	
-	public LogRotator getLogRotator() { return logRotator; }
-	
-	@Extension
+    
+    private static final Logger LOGGER = Logger.getLogger( LogRotatorMapping.class.getName() );
+    
+    /**
+     * A regular expression to apply to {@link Job#getFullName()}
+     */
+    protected String jobNameRegex;
+    
+    protected LogRotator logRotator;
+        
+    @DataBoundConstructor
+    public LogRotatorMapping(String jobNameRegex, LogRotator logRotator) {
+        this.jobNameRegex = jobNameRegex;
+        this.logRotator = logRotator;
+    }
+    
+    @DataBoundSetter
+    public void setJobNameRegex(String jobNameRegex) {
+        this.jobNameRegex = jobNameRegex;
+    }
+    
+    public String getJobNameRegex() { return jobNameRegex; }
+    
+    @DataBoundSetter
+    public void setLogRotator(LogRotator logRotator) {        
+        this.logRotator = logRotator;
+    }
+    
+    public LogRotator getLogRotator() { return logRotator; }
+    
+    @Extension
     public static class DescriptorImpl extends Descriptor<LogRotatorMapping> {
-		
-		@Override
-		public String getDisplayName() {
-			return "Log Rotator Mapping";
-		}
-		
-		public FormValidation doCheckJobNameRegex(@QueryParameter String jobNameRegex) {
-			
-			if( null == Util.fixEmptyAndTrim(jobNameRegex) ) {
-				return FormValidation.error( "Please provide a regular expression." );
-			}
-			
-			try {
-				Pattern.compile( jobNameRegex );
-				return FormValidation.ok();
-			} catch( PatternSyntaxException pse ) {
-				return FormValidation.error(pse, "Please enter a valid regular expression." );
-			}
-		}
-	}
+        
+        @Override
+        public String getDisplayName() {
+            return "Log Rotator Mapping";
+        }
+        
+        public FormValidation doCheckJobNameRegex(@QueryParameter String jobNameRegex) {
+            
+            if( null == Util.fixEmptyAndTrim(jobNameRegex) ) {
+                return FormValidation.error( "Please provide a regular expression." );
+            }
+            
+            try {
+                Pattern.compile( jobNameRegex );
+                return FormValidation.ok();
+            } catch( PatternSyntaxException pse ) {
+                return FormValidation.error(pse, "Please enter a valid regular expression." );
+            }
+        }
+    }
 }

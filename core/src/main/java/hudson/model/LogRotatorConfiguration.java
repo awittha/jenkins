@@ -44,160 +44,160 @@ import jenkins.model.GlobalConfiguration;
  */
 @Extension
 public class LogRotatorConfiguration extends GlobalConfiguration {
-	
-	private static final Logger LOGGER = Logger.getLogger( LogRotatorConfiguration.class.getName() );
-	
-	public static final boolean DEFAULT_ENABLE_ROTATION = true;
-	
-	/**
-	 * Whether or not {@link LogRotator} rules should be periodically applied to jobs.
-	 */
-	protected boolean enableRotation = DEFAULT_ENABLE_ROTATION;
-	
-	public static final int DEFAULT_UPDATE_INTERVAL_HOURS = 24;
-	
-	/**
-	 * The number of hours to wait between applying {@link LogRotator} rules.
-	 */
-	protected int updateIntervalHours = DEFAULT_UPDATE_INTERVAL_HOURS;
-	
-	/**
-	 * The last time that log rotation rules were applied.
-	 */
-	protected long lastRotated;
-	
-	public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITH_ROTATORS = LogRotationPolicy.CUSTOM;
-	
-	/**
-	 * What to do for jobs that define their own custom {@link LogRotator}.
-	 */
-	protected LogRotationPolicy policyForJobsWithCustomLogRotator;
-	
-	public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITHOUT_ROTATORS = LogRotationPolicy.NONE;
-	
-	/**
-	 * What to do for jobs that do not define their own custom {@link LogRotator}
-	 */
-	protected LogRotationPolicy policyForJobsWithoutCustomLogRotator;
-	
-	/**
-	 * Global log rotation policies
-	 */
-	protected List<LogRotatorMapping> globalLogRotators = new ArrayList<LogRotatorMapping>();
-	
-	@DataBoundConstructor
-	public LogRotatorConfiguration() {
-		load();
-	}
-	
-	public boolean isEnableRotation() {
-		return enableRotation;
-	}
-	
-	@DataBoundSetter
-	public void setEnableRotation(boolean enableRotation) {
-		this.enableRotation = enableRotation;
-		
-		save();
-	}
+    
+    private static final Logger LOGGER = Logger.getLogger( LogRotatorConfiguration.class.getName() );
+    
+    public static final boolean DEFAULT_ENABLE_ROTATION = true;
+    
+    /**
+     * Whether or not {@link LogRotator} rules should be periodically applied to jobs.
+     */
+    protected boolean enableRotation = DEFAULT_ENABLE_ROTATION;
+    
+    public static final int DEFAULT_UPDATE_INTERVAL_HOURS = 24;
+    
+    /**
+     * The number of hours to wait between applying {@link LogRotator} rules.
+     */
+    protected int updateIntervalHours = DEFAULT_UPDATE_INTERVAL_HOURS;
+    
+    /**
+     * The last time that log rotation rules were applied.
+     */
+    protected long lastRotated;
+    
+    public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITH_ROTATORS = LogRotationPolicy.CUSTOM;
+    
+    /**
+     * What to do for jobs that define their own custom {@link LogRotator}.
+     */
+    protected LogRotationPolicy policyForJobsWithCustomLogRotator;
+    
+    public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITHOUT_ROTATORS = LogRotationPolicy.NONE;
+    
+    /**
+     * What to do for jobs that do not define their own custom {@link LogRotator}
+     */
+    protected LogRotationPolicy policyForJobsWithoutCustomLogRotator;
+    
+    /**
+     * Global log rotation policies
+     */
+    protected List<LogRotatorMapping> globalLogRotators = new ArrayList<LogRotatorMapping>();
+    
+    @DataBoundConstructor
+    public LogRotatorConfiguration() {
+        load();
+    }
+    
+    public boolean isEnableRotation() {
+        return enableRotation;
+    }
+    
+    @DataBoundSetter
+    public void setEnableRotation(boolean enableRotation) {
+        this.enableRotation = enableRotation;
+        
+        save();
+    }
 
-	public int getUpdateIntervalHours() {
-		return updateIntervalHours;
-	}
+    public int getUpdateIntervalHours() {
+        return updateIntervalHours;
+    }
 
-	@DataBoundSetter
-	public void setUpdateIntervalHours(int updateIntervalHours) {
-		this.updateIntervalHours = updateIntervalHours;
-		
-		save();
-	}
+    @DataBoundSetter
+    public void setUpdateIntervalHours(int updateIntervalHours) {
+        this.updateIntervalHours = updateIntervalHours;
+        
+        save();
+    }
 
-	public long getLastRotated() {
-		return lastRotated;
-	}
+    public long getLastRotated() {
+        return lastRotated;
+    }
 
-	/**
-	 * Not a {@link DataBoundSetter}; this should only be set by internal code,
-	 * never by an external user or process.
-	 * 
-	 * @param lastRotated The timestamp of the last time log rotation rules were applied.
-	 */
-	public void setLastRotated(long lastRotated) {
-		this.lastRotated = lastRotated;
-		
-		save();
-	}
+    /**
+     * Not a {@link DataBoundSetter}; this should only be set by internal code,
+     * never by an external user or process.
+     * 
+     * @param lastRotated The timestamp of the last time log rotation rules were applied.
+     */
+    public void setLastRotated(long lastRotated) {
+        this.lastRotated = lastRotated;
+        
+        save();
+    }
 
-	public LogRotationPolicy getPolicyForJobsWithCustomLogRotator() {
-		return policyForJobsWithCustomLogRotator;
-	}
+    public LogRotationPolicy getPolicyForJobsWithCustomLogRotator() {
+        return policyForJobsWithCustomLogRotator;
+    }
 
-	@DataBoundSetter
-	public void setPolicyForJobsWithCustomLogRotator(LogRotationPolicy policyForJobsWithCustomLogRotator) {
-		this.policyForJobsWithCustomLogRotator = policyForJobsWithCustomLogRotator;
-		
-		save();
-	}
-	
-	public LogRotationPolicy getPolicyForJobsWithoutCustomLogRotator() {
-		return policyForJobsWithoutCustomLogRotator;
-	}
+    @DataBoundSetter
+    public void setPolicyForJobsWithCustomLogRotator(LogRotationPolicy policyForJobsWithCustomLogRotator) {
+        this.policyForJobsWithCustomLogRotator = policyForJobsWithCustomLogRotator;
+        
+        save();
+    }
+    
+    public LogRotationPolicy getPolicyForJobsWithoutCustomLogRotator() {
+        return policyForJobsWithoutCustomLogRotator;
+    }
 
-	@DataBoundSetter
-	public void setPolicyForJobsWithoutCustomLogRotator(LogRotationPolicy policyForJobsWithoutCustomLogRotator) {
-		this.policyForJobsWithoutCustomLogRotator = policyForJobsWithoutCustomLogRotator;
-		
-		save();
-	}
-	public List<LogRotatorMapping> getGlobalLogRotators() {
-		return globalLogRotators;
-	}
+    @DataBoundSetter
+    public void setPolicyForJobsWithoutCustomLogRotator(LogRotationPolicy policyForJobsWithoutCustomLogRotator) {
+        this.policyForJobsWithoutCustomLogRotator = policyForJobsWithoutCustomLogRotator;
+        
+        save();
+    }
+    public List<LogRotatorMapping> getGlobalLogRotators() {
+        return globalLogRotators;
+    }
 
-	@DataBoundSetter
-	public void setGlobalLogRotators(List<LogRotatorMapping> globalLogRotators) {
-		this.globalLogRotators = globalLogRotators;
-		
-		save();
-	}
-	
-	public FormValidation doCheckUpdateIntervalHours(@QueryParameter String updateIntervalHours) {
-		try {
-			int interval = Integer.parseInt( updateIntervalHours );
-			
-			if( interval <=0 ) {
-				return FormValidation.error( "Please enter a positive integer." );
-			}
-		} catch( NumberFormatException nfe ) {
-			return FormValidation.error( "Please enter a positive integer." );
-		}
-		
-		return FormValidation.ok();
-	}
-	
-	/**
-	 * How to rotate the logs of a given job.
-	 * 
-	 * @author awitt
-	 * @since 2.203
-	 */
-	public static enum LogRotationPolicy {
-		/**
-		 * Do not periodically rotate build logs.
-		 */
-		NONE,
-		
-		/**
-		 * Use the job's own custom {@link LogRotator}.
-		 */
-		CUSTOM,
-		
-		/**
-		 * Use an appropriate globally-defined {@link LogRotator}.
-		 * Or none, if there are no appropriate global definitions.
-		 * 
-		 * @see LogRotatorMapping
-		 */
-		GLOBAL
-	}
+    @DataBoundSetter
+    public void setGlobalLogRotators(List<LogRotatorMapping> globalLogRotators) {
+        this.globalLogRotators = globalLogRotators;
+        
+        save();
+    }
+    
+    public FormValidation doCheckUpdateIntervalHours(@QueryParameter String updateIntervalHours) {
+        try {
+            int interval = Integer.parseInt( updateIntervalHours );
+            
+            if( interval <=0 ) {
+                return FormValidation.error( "Please enter a positive integer." );
+            }
+        } catch( NumberFormatException nfe ) {
+            return FormValidation.error( "Please enter a positive integer." );
+        }
+        
+        return FormValidation.ok();
+    }
+    
+    /**
+     * How to rotate the logs of a given job.
+     * 
+     * @author awitt
+     * @since 2.203
+     */
+    public static enum LogRotationPolicy {
+        /**
+         * Do not periodically rotate build logs.
+         */
+        NONE,
+        
+        /**
+         * Use the job's own custom {@link LogRotator}.
+         */
+        CUSTOM,
+        
+        /**
+         * Use an appropriate globally-defined {@link LogRotator}.
+         * Or none, if there are no appropriate global definitions.
+         * 
+         * @see LogRotatorMapping
+         */
+        GLOBAL
+    }
 
 }
