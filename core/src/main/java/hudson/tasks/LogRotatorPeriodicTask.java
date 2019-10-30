@@ -139,7 +139,9 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 								// any other exception, chomp it and try to rotate the rest of the logs.
 								LOGGER.log(
 									WARNING,
-									"Unexpected exception encountered while rotating build logs. Skipping this job & trying the next.",
+									"Unexpected exception encountered while rotating build logs. Skipping job [" +
+									job.getFullName() + 
+									"] & trying the next.",
 									e );
 							}
 						}

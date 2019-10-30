@@ -59,7 +59,6 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 		
 	@DataBoundConstructor
 	public LogRotatorMapping(String jobNameRegex, LogRotator logRotator) {
-		LOGGER.log( INFO, "Setting a LogRotator by constructor w/ class: " + logRotator );
 		this.jobNameRegex = jobNameRegex;
 		this.logRotator = logRotator;
 	}
@@ -72,9 +71,7 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 	public String getJobNameRegex() { return jobNameRegex; }
 	
 	@DataBoundSetter
-	public void setLogRotator(LogRotator logRotator) {
-		LOGGER.log( INFO, "Setting a LogRotator by class: " + logRotator );
-		
+	public void setLogRotator(LogRotator logRotator) {		
 		this.logRotator = logRotator;
 	}
 	
@@ -95,7 +92,7 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
 			}
 			
 			try {
-				Pattern p = Pattern.compile( jobNameRegex );
+				Pattern.compile( jobNameRegex );
 				return FormValidation.ok();
 			} catch( PatternSyntaxException pse ) {
 				return FormValidation.error(pse, "Please enter a valid regular expression." );
