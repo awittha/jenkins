@@ -1,5 +1,5 @@
 /*
- * The MIT License
+/* The MIT License
  * 
  * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Martin Eigenbrodt
  * Copyright (c) 2019 Intel Corporation

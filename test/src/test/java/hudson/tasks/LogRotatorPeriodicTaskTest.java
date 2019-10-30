@@ -24,6 +24,7 @@
 package hudson.tasks;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -54,18 +55,40 @@ public class LogRotatorPeriodicTaskTest {
 	
 	protected LogRotator mockCustomRotator2;
 	
+	/**
+	 * A mock log rotator that will only apply some jobs.
+	 */
 	protected LogRotator mockSpecificGlobalRotator;
 	
-	protected LogRotator mockCatchallGlobalRotator;
-	
+	/**
+	 * Maps the {@link #mockSpecificGlobalRotator} to a certain job name pattern
+	 */
 	protected LogRotatorMapping specificGlobalMapping;
 	
+	/**
+	 * A mock log rotator that will apply to all jobs.
+	 */
+	protected LogRotator mockCatchallGlobalRotator;
+	
+	/**
+	 * Maps the {@link #mockCatchallGlobalRotator} to the regex ".*"
+	 */
 	protected LogRotatorMapping catchallGlobalMapping;
 	
+	/**
+	 * The task under test
+	 */
 	protected LogRotatorPeriodicTask task;
 	
+	/**
+	 * Actual text written to the listener would go here
+	 * (but, {@link LogRotatorPeriodicTask} doesn't write anything to the listener)
+	 */
 	protected StringWriter log;
 	
+	/**
+	 * TaskListener for the periodic log rotation
+	 */
 	protected TaskListener listener;
 	
 	@Before
@@ -76,11 +99,9 @@ public class LogRotatorPeriodicTaskTest {
 		mockCustomRotator2 = mock( LogRotator.class );
 		
 		mockSpecificGlobalRotator = mock( LogRotator.class );
-		
-		mockCatchallGlobalRotator = mock( LogRotator.class );
-		
 		specificGlobalMapping = new LogRotatorMapping( "rotator-.*", mockSpecificGlobalRotator );
 		
+		mockCatchallGlobalRotator = mock( LogRotator.class );
 		catchallGlobalMapping = new LogRotatorMapping( ".*", mockCatchallGlobalRotator );
 		
 		task = new LogRotatorPeriodicTask();
@@ -109,7 +130,7 @@ public class LogRotatorPeriodicTaskTest {
 		config.setPolicyForJobsWithCustomLogRotator( LogRotationPolicy.NONE );
 		
 		// this global LogRotator should match all jobs.
-		// but, since the policy is "do nothing," it should NOT be used!
+		// but since the policy is "do nothing," it should not be used.
 		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
 				catchallGlobalMapping
 		}));
@@ -152,7 +173,7 @@ public class LogRotatorPeriodicTaskTest {
 		config.setPolicyForJobsWithCustomLogRotator( LogRotationPolicy.CUSTOM );
 		
 		// this global LogRotator should match all jobs.
-		// but, since the policy is "do nothing," it should NOT be used!
+		// but sinced the policy is "use the job's rotator," it should not be used.
 		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
 				catchallGlobalMapping
 		}));
@@ -188,6 +209,7 @@ public class LogRotatorPeriodicTaskTest {
 		// create a project with a LogRotator
 		FreeStyleProject project = j.createFreeStyleProject();
 		project.setBuildDiscarder( mockCustomRotator1 );
+		assertTrue( mockCustomRotator1 instanceof LogRotator );
 		
 		// set global Log Rotation policy for jobs with a custom rotator:
 		// use the global rotators
@@ -196,7 +218,7 @@ public class LogRotatorPeriodicTaskTest {
 		config.setPolicyForJobsWithCustomLogRotator( LogRotationPolicy.GLOBAL );
 		
 		// this global LogRotator should match all jobs.
-		// but, since the policy is "do nothing," it should NOT be used!
+		// since the policy is "use the global rotator," it should be used.
 		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
 				catchallGlobalMapping
 		}));
@@ -236,10 +258,10 @@ public class LogRotatorPeriodicTaskTest {
 		// do nothing
 		LogRotatorConfiguration config = GlobalConfiguration.all().get( LogRotatorConfiguration.class );
 		assertNotNull( config );
-		config.setPolicyForJobsWithCustomLogRotator( LogRotationPolicy.NONE );
+		config.setPolicyForJobsWithoutCustomLogRotator( LogRotationPolicy.NONE );
 		
 		// this global LogRotator should match all jobs.
-		// but, since the policy is "do nothing," it should NOT be used!
+		// but since the policy is "do nothing," it should not be used.
 		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
 				catchallGlobalMapping
 		}));
@@ -274,10 +296,10 @@ public class LogRotatorPeriodicTaskTest {
 		// use the global log rotator
 		LogRotatorConfiguration config = GlobalConfiguration.all().get( LogRotatorConfiguration.class );
 		assertNotNull( config );
-		config.setPolicyForJobsWithCustomLogRotator( LogRotationPolicy.GLOBAL );
+		config.setPolicyForJobsWithoutCustomLogRotator( LogRotationPolicy.GLOBAL );
 		
 		// this global LogRotator should match all jobs.
-		// but, since the policy is "do nothing," it should NOT be used!
+		// since the policy is "use global rotators," it should be used.
 		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
 				catchallGlobalMapping
 		}));
@@ -293,7 +315,7 @@ public class LogRotatorPeriodicTaskTest {
 		 * Test Validation
 		 */
 		
-		// the global rotator should not have been called.
+		// the global rotator should have been called.
 		verify( mockCatchallGlobalRotator )
 		.perform( project );
 		
@@ -305,7 +327,42 @@ public class LogRotatorPeriodicTaskTest {
 	}
 	
 	@Test
-	public void globalRotators_noRotationWhenNoneMatch() {
+	public void globalRotators_noRotationWhenNoneMatch() throws IOException, InterruptedException {
+		
+		/*
+		 * Test Setup
+		 */
+		
+		// create a project without a LogRotator
+		FreeStyleProject project = j.createFreeStyleProject( "nameThatWontMatchAnyRotationPolicy" );
+		
+		// set global Log Rotation policy for jobs with a custom rotator:
+		// use the global log rotator
+		LogRotatorConfiguration config = GlobalConfiguration.all().get( LogRotatorConfiguration.class );
+		assertNotNull( config );
+		config.setPolicyForJobsWithoutCustomLogRotator( LogRotationPolicy.GLOBAL );
+		
+		// this global LogRotator should match only some jobs.
+		// but since the job in this test will not match the rule,
+		// this rotator should not be used.
+		config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
+				specificGlobalMapping
+		}));
+		
+		/*
+		 * Test Execution
+		 */
+		
+		// apply LogRotation
+		task.execute( listener );
+		
+		/*
+		 * Test Validation
+		 */
+		
+		// no global rotator should have been used.
+		verify( mockSpecificGlobalRotator, never() )
+		.perform( project );
 		
 	}
 	

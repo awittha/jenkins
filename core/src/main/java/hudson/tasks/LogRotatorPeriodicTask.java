@@ -86,7 +86,7 @@ public class LogRotatorPeriodicTask extends AsyncPeriodicWork {
 						for( Job<?,?> job : item.getAllJobs() ) {
 														
 							BuildDiscarder discarder = job.getBuildDiscarder();
-							
+														
 							try {
 							
 								if( discarder instanceof LogRotator ) {
