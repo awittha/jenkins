@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
@@ -322,8 +323,47 @@ public class LogRotatorPeriodicTaskTest {
     }
     
     @Test
-    public void globalRotators_checkedInOrder() {
+    public void globalRotators_checkedInOrder() throws IOException, InterruptedException {
+    	
+    	/*
+         * Test Setup
+         */
         
+        // create a project without a LogRotator
+        FreeStyleProject project1 = j.createFreeStyleProject( "rotator-1" );
+        FreeStyleProject project2 = j.createFreeStyleProject();
+        
+        // set global Log Rotation policy for jobs with a custom rotator:
+        // use the global log rotator
+        LogRotatorConfiguration config = GlobalConfiguration.all().get( LogRotatorConfiguration.class );
+        assertNotNull( config );
+        config.setPolicyForJobsWithoutCustomLogRotator( LogRotationPolicy.GLOBAL );
+        
+        // this global LogRotator should match all jobs
+        // the specific rotator should match only project1
+        config.setGlobalLogRotators(Arrays.asList( new LogRotatorMapping[] {
+        		specificGlobalMapping,
+                catchallGlobalMapping
+        }));
+        
+        /*
+         * Test Execution
+         */
+        
+        // apply LogRotation
+        task.execute( listener );
+        
+        /*
+         * Test Validation
+         */
+        
+        // each rotator should've been called once
+        // each one on a different project.
+        verify( mockSpecificGlobalRotator, times(1) )
+        .perform( project1 );
+        
+        verify( mockCatchallGlobalRotator, times(1) )
+        .perform( project2 );
     }
     
     @Test
