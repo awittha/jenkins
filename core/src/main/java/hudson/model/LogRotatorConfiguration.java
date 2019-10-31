@@ -26,7 +26,6 @@ package hudson.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -44,9 +43,7 @@ import jenkins.model.GlobalConfiguration;
  */
 @Extension
 public class LogRotatorConfiguration extends GlobalConfiguration {
-    
-    private static final Logger LOGGER = Logger.getLogger( LogRotatorConfiguration.class.getName() );
-    
+
     public static final boolean DEFAULT_ENABLE_ROTATION = true;
     
     /**
@@ -71,14 +68,14 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
     /**
      * What to do for jobs that define their own custom {@link LogRotator}.
      */
-    protected LogRotationPolicy policyForJobsWithCustomLogRotator;
+    protected LogRotationPolicy policyForJobsWithCustomLogRotator = DEFAULT_POLICY_FOR_JOBS_WITH_ROTATORS;
     
     public static final LogRotationPolicy DEFAULT_POLICY_FOR_JOBS_WITHOUT_ROTATORS = LogRotationPolicy.NONE;
     
     /**
      * What to do for jobs that do not define their own custom {@link LogRotator}
      */
-    protected LogRotationPolicy policyForJobsWithoutCustomLogRotator;
+    protected LogRotationPolicy policyForJobsWithoutCustomLogRotator = DEFAULT_POLICY_FOR_JOBS_WITHOUT_ROTATORS;
     
     /**
      * Global log rotation policies
@@ -165,10 +162,10 @@ public class LogRotatorConfiguration extends GlobalConfiguration {
             int interval = Integer.parseInt( updateIntervalHours );
             
             if( interval <=0 ) {
-                return FormValidation.error( "Please enter a positive integer." );
+                return FormValidation.error( Messages.LogRotatorConfiguration_pleaseEnterAPositiveInteger() );
             }
         } catch( NumberFormatException nfe ) {
-            return FormValidation.error( "Please enter a positive integer." );
+            return FormValidation.error( Messages.LogRotatorConfiguration_pleaseEnterAPositiveInteger() );
         }
         
         return FormValidation.ok();

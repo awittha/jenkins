@@ -45,14 +45,14 @@ Global Log Rotation configuration
 			<f:entry
 				title="${%Interval}"
 				field="updateIntervalHours"
-				description="Hours to wait between applying log rotation rules">
+				description="${%Hours to wait between applying log rotation rules}">
 				<f:number clazz="positive-number" min="1" step="1" />
 			</f:entry>
 			
 			<f:entry
 				title="${%Jobs with custom LogRotators}"
 				field="policyForJobsWithCustomLogRotator"
-				description="Log rotation policy for jobs that define their own custom LogRotator rules" >
+				description="${%Log rotation policy for jobs that define their own rules}" >
 				<f:radio
 					title="${%Do nothing}"
 					name="policyForJobsWithCustomLogRotator"
@@ -60,13 +60,13 @@ Global Log Rotation configuration
 					checked="${descriptor.policyForJobsWithCustomLogRotator == 'NONE'}" />
 				<br/>
 				<f:radio
-					title="${%Use job's LogRotator}"
+					title="${%Use job's rules}"
 					name="policyForJobsWithCustomLogRotator"
 					value="CUSTOM" 
 					checked="${descriptor.policyForJobsWithCustomLogRotator == 'CUSTOM'}" />
 				<br/>
 				<f:radio
-					title="${%Use global LogRotator}"
+					title="${%Use global rules}"
 					name="policyForJobsWithCustomLogRotator"
 					value="GLOBAL" 
 					checked="${descriptor.policyForJobsWithCustomLogRotator == 'GLOBAL'}" />
@@ -75,7 +75,7 @@ Global Log Rotation configuration
 			<f:entry
 				title="${%Jobs without LogRotators}"
 				field="policyForJobsWithoutCustomLogRotator"
-				description="Log rotation policy for jobs that do not define any custom LogRotator rules" >
+				description="${%Log rotation policy for jobs that do not define any rules}" >
 				<f:radio
 					title="${%Do nothing}"
 					name="policyForJobsWithoutCustomLogRotator"
@@ -83,7 +83,7 @@ Global Log Rotation configuration
 					checked="${descriptor.policyForJobsWithoutCustomLogRotator == 'NONE'}" />
 				<br/>
 				<f:radio
-					title="${%Use global LogRotator}"
+					title="${%Use global rules}"
 					name="policyForJobsWithoutCustomLogRotator"
 					value="GLOBAL" 
 					checked="${descriptor.policyForJobsWithoutCustomLogRotator == 'GLOBAL'}" />

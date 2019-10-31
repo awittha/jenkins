@@ -34,7 +34,7 @@ In context, this can be used to know if a given job's logs should be rotated.
 	<f:entry
 		title="${%Job Name Pattern}"
 		field="jobNameRegex"
-		description="A regular expression to apply to job names">
+		description="${%A regular expression to apply to job names}">
 		<f:textbox/>
 	</f:entry>
 	<f:property field="logRotator">

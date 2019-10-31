@@ -24,7 +24,6 @@
  */
 package hudson.model;
 
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -45,9 +44,7 @@ import hudson.util.FormValidation;
  *
  */
 public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping> {
-    
-    private static final Logger LOGGER = Logger.getLogger( LogRotatorMapping.class.getName() );
-    
+
     /**
      * A regular expression to apply to {@link Job#getFullName()}
      */
@@ -86,14 +83,14 @@ public class LogRotatorMapping extends AbstractDescribableImpl<LogRotatorMapping
         public FormValidation doCheckJobNameRegex(@QueryParameter String jobNameRegex) {
             
             if( null == Util.fixEmptyAndTrim(jobNameRegex) ) {
-                return FormValidation.error( "Please provide a regular expression." );
+                return FormValidation.error( Messages.LogRotatorMapping_provideARegex() );
             }
             
             try {
                 Pattern.compile( jobNameRegex );
                 return FormValidation.ok();
             } catch( PatternSyntaxException pse ) {
-                return FormValidation.error(pse, "Please enter a valid regular expression." );
+                return FormValidation.error(pse, Messages.LogRotatorMapping_provideAValidRegex() );
             }
         }
     }
